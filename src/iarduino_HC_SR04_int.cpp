@@ -16,7 +16,10 @@ void	HC_func_IRQ4()	{	if(iHCSR04iVC.flgREQUEST[4])	{	if(digitalRead(iHCSR04iVC.p
 		iarduino_HC_SR04_int::iarduino_HC_SR04_int(uint8_t i, uint8_t j){			//
 //			Сохраняем номера выводов и прерываний:									//
 			pinTRIG = i;															//	Номер вывода TRIG
-			pinECHO =(digitalPinToInterrupt(j)==NOT_AN_INTERRUPT)?2:j;				//	Номер вывода ECHO
+			pinECHO = j;															//	Номер вывода ECHO
+			#ifdef NOT_AN_INTERRUPT													//
+			pinECHO =(digitalPinToInterrupt(j)==NOT_AN_INTERRUPT)?2:j;				//	Если указан вывод без прерываний, то используем вывод 2.
+			#endif																	//
 			numIRQ  = digitalPinToInterrupt(pinECHO);								//	Номер прерывания
 			iHCSR04iVC.pinECHO[numIRQ]=pinECHO;										//	Номер вывода ECHO для функций обработки прерываний
 //			Устанавливаем режим работы выводов:										//	
@@ -24,7 +27,7 @@ void	HC_func_IRQ4()	{	if(iHCSR04iVC.flgREQUEST[4])	{	if(digitalRead(iHCSR04iVC.p
 			pinMode(pinECHO, INPUT);												//	Вывод pinECHO является входом
 //			Назначаем обработку прерывания numIRQ одной из функций HC_func_IRQ:		//
 			uint8_t k = numIRQ;														//	Сохраняем номер прерывания
-			#ifdef __SAM3X8E__ 														//	А для микроконтроллеров на базе __SAM3X8E__ , нопример Arduino Due
+			#ifdef __SAM3X8E__ 														//	А для микроконтроллеров на базе __SAM3X8E__ , например Arduino Due
 			k = pinECHO;															//	Сохраняем номер вывода
 			#endif																	//
 			switch(numIRQ){															//
